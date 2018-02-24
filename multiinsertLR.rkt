@@ -13,4 +13,8 @@
         ( cons oldR
                ( cons new
                       ( multiinsertLR new oldL oldR
-                                      ( cdr lat))))) 
+                                      ( cdr lat)))))
+      (else
+       ( cons ( car lat)
+              ( multiinsertLR new oldL oldR
+                              ( cdr lat))))))) 
