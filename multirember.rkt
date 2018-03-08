@@ -22,7 +22,12 @@
                       ( multirember a
                                     ( cdr lat)))))))))
 
+;This notation allows us to trace our recursion after constructing into an empty list '()
+;(require racket/trace)
+;(trace multirember)
+(multirember 'W '(R E C U R S I O N W))
+
 ;Examples to test the program
 ;-----------------------------
-;(multirember 'blue '(red blue white blue green blue black yellow blue))
-;'(red white green black yellow)
+;(multirember 'and '(in cdr but not in car we cons car then rember and cdr))
+;(multirember 'in '(in car we cons cdr))

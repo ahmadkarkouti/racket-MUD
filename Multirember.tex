@@ -1,0 +1,235 @@
+\documentclass{article}
+
+\usepackage{lipsum}
+\usepackage[margin=1in,left=1.5in,includefoot]{geometry}
+
+%Graphics preamble
+\usepackage{graphicx} % Importing Images
+\usepackage{float} % Allows control of float positions
+
+
+
+%code
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{dkgreen}{rgb}{0.93,0.53,0.18}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.0,0.47,0.75}
+
+\lstset{frame=tb,
+  language=lisp,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+
+
+
+%Header & Footer
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhead{}
+\fancyfoot{}
+\fancyfoot[R]{ \thepage\ }
+
+
+
+
+
+\begin{document}
+\begin{titlepage}
+	\begin{center}
+	\line(1,0){300} \\
+	\huge{\bfseries Multirember} \\
+	[1.5cm]
+	\textsc{\LARGE Functional Programming} \\
+	\textsc{\LARGE University of West London} \\
+	[10cm]
+	\end{center}
+	
+	\begin{flushright}
+	\textsc{\large Ahmad K. \\
+	\#21269015 \\
+	February 28, 2018 \\}
+	\end{flushright}
+\end{titlepage}
+
+%Table of Contents
+\tableofcontents
+\thispagestyle{empty}
+\cleardoublepage
+
+%Resetting page counter
+\setcounter{page}{1}
+
+
+
+\section{Introduction}\label{sec:intro}
+This is my introduction.
+
+\subsection{Racket}
+Racket is a multi-paradigm programming language in the Lisp-Scheme family. Part of its goal is to operate as a platform for language creation, design, and implementation. The platform provides a development environment called DrRacket which is written in Racket itself. The IDE is used in the "ProgramByDesign" outreach program in an endeavor to turn programming into an essential part of the liberal arts curriculum. Racket's core language includes modules, lexical closures, tail calls, delimited continuations, parameters and more.
+The language also comes with primitives, which regulates resource administration and enables the language to act like an operating system for loading and organizing other programs.
+Further extensions to the language are developed using powerful macro systems, which can control all properties of a language. Distinct from other programming languages that have an absence of macro systems, language constructs in Racket are created on top of the base language using macros.\\
+\subsection{Other Programing Languages}
+Lisp is a family of programming languages with a unique, fully parenthesized prefix notation. Only Fortran is older than lisp making it the second-oldest high-level programming language still in prevalent use today. Lisp has changed a lot all since it began and today, the best-known purpose Lisp dialect is Scheme.\\
+
+
+Scheme is a programming language that provisions several paradigms, and that includes functional programming which is one of the main dialects of Lisp. Distinct from Common Lisp, Scheme follows a plain design attitude stipulating a small standard core with powerful tools for language extension.\\
+\subsection{Functional Programming}
+Functional programming languages are especially devised to manage symbolic computation and list processing applications. Functional programming is grounded upon mathematical functions. Some of the prevalent functional programming languages involve: Lisp, Python, Erlang, Haskell, Clojure, and more.
+
+\subsection{Recursion}
+\newpage
+\section{Multirember}\label{sec:multirember}
+
+In order to explain Multirember, I will start by explaining Rember.
+\subsection{Rember}
+\begin{lstlisting}
+#lang racket
+
+;REMBER
+;--------
+;--------
+(define rember ;This is defining the main function rember
+  (lambda (a lat);Lambda is an anonymous function
+    
+    (cond ;Condition
+      
+      ((null? lat) (quote ())) ;Check if lat is null, then output an empty list
+      ((eq? ( car lat) a) ( cdr lat)) ;check if (car lat) = a , output cdr lat
+
+      ;Else construct a new list with the first atom of lat
+      ;And call rember to the cdr of lat
+      (else ( cons ( car lat) 
+                   (rember a ( cdr lat)))))))
+
+
+;Examples to test the program
+;-----------------------------
+;(rember 'and '(in cdr but not in car we cons car then rember and cdr))
+;(rember 'in '(in car we cons cdr))
+\end{lstlisting}
+Rember is a function that removes the first instance of the first parameter from the second parameter.
+
+\subsubsection{Defining the function}
+We begin by defining the function rember and assigning it with an anonymous function "lambda" that allows us to write local functions that can be passed as arguments or returned as the value of function calls.
+ We allocate "lambda" with 2 arguments a and lat, so that the first parameter can be removed from the second one.
+
+\subsubsection{Cond}
+Within that function we start a conditional statement. Our conditional statement contains 2 expressions, the first expression is checking if lat is null and if it is then the body of that expression is outputting "quote()" which is an empty list '() and ignoring the rest of the expressions.\\
+
+
+If lat is not null, the second expression comes to check if the first atom of lat is equal to our first parameter of "lambda" which is a, and if it is equal, the body of the second expression comes to output the cdr of lat and ignoring any other expressions.\\
+
+
+While if both expressions turn out to be false then the else statement which is always true comes to action by constructing a new list with first atom of lat, since the first atom of lat is not equal to the first parameter of "lambda" and then calling the "rember" function again but only on the cdr of lat and this loop will keep on going until the first instance of atom "a" has been removed from the "lat" list and the function will then output the new list which excludes the first instance of atom "a".
+
+\subsection{Multirember}
+\begin{lstlisting}
+#lang racket
+
+;TASK 1: MULTIREMBER
+;----------------------
+;----------------------
+(define multirember ;This is defining the function multirember
+  (lambda (a lat)   ;Lambda is an anonymous function
+    
+    (cond           ;Condition
+      ((null? lat) (quote ())) ;Check if lat is null
+      (else
+       (cond                   ;Condition
+         ((eq? ( car lat) a)   ; if (car lat) = a
+
+          ;if the first atom of the list == a
+          ( multirember a ( cdr lat)))
+          ;Jump back to multirember and remove the first atom of the list
+
+         
+         (else ( cons ( car lat)
+          ;Else construct a new list with every atom that is not equal to a
+                      ( multirember a
+                                    ( cdr lat)))))))))
+
+;This notation allows us to trace our recursion after constructing into an empty list '()
+(require racket/trace)
+(trace multirember)
+(multirember 'Things '(Good Things Come To Those Who Wait))
+
+;Examples to test the program
+;-----------------------------
+;(multirember 'and '(in cdr but not in car we cons car then rember and cdr))
+;(multirember 'in '(in car we cons cdr))
+\end{lstlisting}
+Unlike rember, multirember is a function that removes all instances of the first parameter from the second parameter and not just the first instance.
+
+\subsubsection{Defining the function}
+Similar to the rember function, we begin by defining the function multirember and assigning it with an anonymous function "lambda" that allows us to write local functions that can be passed as arguments or returned as the value of function calls.
+ We allocate "lambda" with 2 arguments a and lat, so that the first parameter can be removed from the second one.\\
+ 
+The first parameter "a" refers to an atom, and the second parameter "lat" refers to a list that the atom "a" will be removed from.
+\subsubsection{Cond}
+Within the multirember function, we start a conditional statement.\\
+
+The first expression in the conditional statement checks if the list "lat" is null, if the list "lat" is null then there is no point checking if anything is equal to our first parameter "a" because our list is empty, so the body of the expression would output "quote()" which is an empty list '() and the rest of the function would be ignored.\\
+
+If the list "lat" is not null, an else statement which is always true will run. In the else statement another conditional statement will appear.  The first expression of the second conditional statement will check if the first atom of the list "lat" is equal to the first parameter of the lambda function "a", and if it is, the body of that expression will call the multirember function again but only on the cdr of the list "lat".\\
+
+The way it goes is that the function will loop as many times as there are atoms in the list plus 1. So for example if there are 5 atoms in the list "lat, the function will run 6 times each time checking if the first atom in the list is equal to the first parameter "a", and when it finds a match it will return only the cdr of the list so excluding the car of the list since it found a match of it being equal to "a", and it will call multirember again on this new constructed list that contains the cdr, so that the second atom that we had in the old list has now become the first atom in our new constructed list.
+
+When it doesn't find a match in the first atom of the list, it will construct a new list containing that first atom that is not equal to the first parameter "a", and calling multirember again but only on the cdr of the list "lat.
+
+This will keep going on until the list is empty, and when the function runs again it will stop at the condition where the list "lat" is null and output the new constructed list that excludes all instances of  the atom from the first parameter "a".
+
+\subsubsection{Tracing Executtion}
+
+\begin{lstlisting}
+> (multirember 'j '(b y j t e))
+\end{lstlisting}
+
+\begin{lstlisting}
+> (multirember 'j '(b y j t e))
+(cons 'b (multirember 'j '(y j t e)))
+(cons 'b (cons 'y (multirember 'j '(j t e))))
+(cons 'b (cons 'y (multirember 'j '(t e))))
+(cons 'b (cons 'y (cons 't (multirember 'j '(e)))))
+(cons 'b (cons 'y (cons 't (cons 'e (multirember 'j '())))))
+\end{lstlisting}
+
+\begin{lstlisting}
+'(b y t e)
+'(b y t e)
+'(b y t e)
+'(b y t e)
+'(b y t e)
+'(b y t e)
+'(b y t e)
+\end{lstlisting}
+
+\subsubsection{Recursion}
+In Racket, it is important to make sure that tail-recursion is used to avoid space consumption when the computation is easily performed in constant space.
+
+After the list is null, as shown above the recursive nature of this function will start by reconstructing a list with all the atoms that were not equal to the first parameter "j"
+
+\subsubsection{Extensive Testing}
+At this stage, I will start running extensive tests in order to better demonstrate the function "Multitember"
+
+
+\newpage
+\section{Conclusion}\label{sec:conclusion}
+
+\newpage
+\section{Appendix}\label{sec:appendix}
+
+
+\end{document}
