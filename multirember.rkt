@@ -25,7 +25,6 @@
 ;This notation allows us to trace our recursion after constructing into an empty list '()
 ;(require racket/trace)
 ;(trace multirember)
-(multirember 'W '(R E C U R S I O N W))
 
 ;Examples to test the program
 ;-----------------------------

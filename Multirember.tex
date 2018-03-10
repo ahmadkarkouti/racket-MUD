@@ -5,6 +5,7 @@
 
 %Graphics preamble
 \usepackage{graphicx} % Importing Images
+\usepackage{subcaption}
 \usepackage{float} % Allows control of float positions
 
 
@@ -90,6 +91,13 @@ Scheme is a programming language that provisions several paradigms, and that inc
 Functional programming languages are especially devised to manage symbolic computation and list processing applications. Functional programming is grounded upon mathematical functions. Some of the prevalent functional programming languages involve: Lisp, Python, Erlang, Haskell, Clojure, and more.
 
 \subsection{Recursion}
+Recur­sion is the idea of design­ing a func­tion so that it calls itself and it is a favored tech­nique in func­tional pro­gram­ming because it helps avoid muta­tion of val­ues.
+
+Every recur­sive func­tion has two essen­tial ingre­di­ents:
+\begin{itemize}
+\item The task to be done by the func­tion is bro­ken down into smaller ver­sions of the same task. Here, each pos­si­ble value of factorial can be described in terms of another value of factorial.
+\item The func­tion reaches a ter­mi­nat­ing con­di­tion. Here, once the list is null, the recur­sion stops, and the func­tion sim­ply returns an empty list. With­out this con­di­tion, the func­tion would recurse indef­i­nitely.
+\end{itemize}
 \newpage
 \section{Multirember}\label{sec:multirember}
 
@@ -181,11 +189,11 @@ The first parameter "a" refers to an atom, and the second parameter "lat" refers
 \subsubsection{Cond}
 Within the multirember function, we start a conditional statement.\\
 
-The first expression in the conditional statement checks if the list "lat" is null, if the list "lat" is null then there is no point checking if anything is equal to our first parameter "a" because our list is empty, so the body of the expression would output "quote()" which is an empty list '() and the rest of the function would be ignored.\\
+The first expression in the conditional statement checks if the list "lat" is null, if the list "lat" is null then there is no point checking if anything is equal to our first parameter "a", because our list is empty, so the body of the expression would output "quote()", which is an empty list '() and the rest of the function would be ignored.\\
 
-If the list "lat" is not null, an else statement which is always true will run. In the else statement another conditional statement will appear.  The first expression of the second conditional statement will check if the first atom of the list "lat" is equal to the first parameter of the lambda function "a", and if it is, the body of that expression will call the multirember function again but only on the cdr of the list "lat".\\
+If the list "lat" is not null, an else statement which is always true will run. In the else statement another conditional statement will appear.  The first expression of the second conditional statement will check if the first atom of the list "lat", is equal to the first parameter of the lambda function "a", and if it is, the body of that expression will call the multirember function again, but only on the cdr of the list "lat".\\
 
-The way it goes is that the function will loop as many times as there are atoms in the list plus 1. So for example if there are 5 atoms in the list "lat, the function will run 6 times each time checking if the first atom in the list is equal to the first parameter "a", and when it finds a match it will return only the cdr of the list so excluding the car of the list since it found a match of it being equal to "a", and it will call multirember again on this new constructed list that contains the cdr, so that the second atom that we had in the old list has now become the first atom in our new constructed list.
+The way it goes is that the function will loop as many times as there are atoms in the list plus 1. So for example if there are 5 atoms in the list "lat, the function will run 6 times, each time checking if the first atom in the list is equal to the first parameter "a", and when it finds a match, it will return only the cdr of the list so excluding the car of the list since it found a match of it being equal to "a", and it will call multirember again on this new constructed list that contains the cdr, so that the second atom that we had in the old list has now become the first atom in our new constructed list.
 
 When it doesn't find a match in the first atom of the list, it will construct a new list containing that first atom that is not equal to the first parameter "a", and calling multirember again but only on the cdr of the list "lat.
 
@@ -194,18 +202,20 @@ This will keep going on until the list is empty, and when the function runs agai
 \subsubsection{Tracing Executtion}
 
 \begin{lstlisting}
-> (multirember 'j '(b y j t e))
+> (multirember 'j '(b y j t j e))
 \end{lstlisting}
-
+I started by following the code in order to trace the execution, first I constructed a list with the atom "b" since it was not in the first parameter of the function, and I did the same thing for the atom "y".
+Then I removed the atom "j" since it is equal to the first parameter. After that I constructed a list with the atom "t" and then removed the atom "j" and constructed a list again with the atom "e.
 \begin{lstlisting}
-> (multirember 'j '(b y j t e))
-(cons 'b (multirember 'j '(y j t e)))
-(cons 'b (cons 'y (multirember 'j '(j t e))))
-(cons 'b (cons 'y (multirember 'j '(t e))))
+> (multirember 'j '(b y j t j e))
+(cons 'b (multirember 'j '(y j t j e)))
+(cons 'b (cons 'y (multirember 'j '(j t j e))))
+(cons 'b (cons 'y (multirember 'j '(t j e))))
+(cons 'b (cons 'y (cons 't (multirember 'j '(j e)))))
 (cons 'b (cons 'y (cons 't (multirember 'j '(e)))))
 (cons 'b (cons 'y (cons 't (cons 'e (multirember 'j '())))))
 \end{lstlisting}
-
+ After that the list was empty so I ran the commads and they all gave me the list excluding all the instances of the first parameter "j" as shown below.
 \begin{lstlisting}
 '(b y t e)
 '(b y t e)
@@ -216,20 +226,143 @@ This will keep going on until the list is empty, and when the function runs agai
 '(b y t e)
 \end{lstlisting}
 
-\subsubsection{Recursion}
-In Racket, it is important to make sure that tail-recursion is used to avoid space consumption when the computation is easily performed in constant space.
+\subsubsection{Recursive Nature}
 
-After the list is null, as shown above the recursive nature of this function will start by reconstructing a list with all the atoms that were not equal to the first parameter "j"
+In Racket, it is important to make sure that tail-recursion is used to avoid space consumption when the computation is easily performed in constant space. After the list is null, as shown above the recursive nature of this function will start by reconstructing a list with all the atoms that were not equal to the first parameter "j". Tail recur­sion has spe­cial sta­tus in Racket because the com­piler notices tail calls and opti­mizes them.
+\begin{lstlisting}
+( multirember a ( cdr lat)))
+\end{lstlisting}
+Tail Call Optimization
+\begin{itemize}
+\item After a conditional expression  the function is recalling itself on the rest of the list as many times as there are atoms in the list and that is the recursive nature of the function.
+\item Each call to a func­tion, includ­ing a recur­sive call, causes another set of argu­ments to be saved in a block of mem­ory called the call stack. As one func­tion calls another, more argu­ments pile up on the call stack. Later, as the return val­ues are cal­cu­lated, argu­ments are removed from the call stack and replaced with the return val­ues.
+\end{itemize}
+\begin{figure}[h!]
+  \centering
+  \begin{subfigure}[b]{1.0\linewidth}
+    \includegraphics[width=\linewidth]{un.png}
+  \end{subfigure}
+\end{figure}
 
 \subsubsection{Extensive Testing}
 At this stage, I will start running extensive tests in order to better demonstrate the function "Multitember"
 
+My first test included the atom "w" and an empty list, and as expected the "quote()" returned an empty list after checking that it was null.
+\begin{lstlisting}
+(multirember 'w '())
+
+'()
+\end{lstlisting}
+My second test included the atom "z" and a list containing the word "words" that is misspelled and the function removed all instances of the letter "z" giving us the final outcome of the list "(words)".
+\begin{lstlisting}
+(multirember 'z '(w z o r z d z s z))
+
+'(w o r d s)
+\end{lstlisting}
+I tested what would happen when I provide a list that does not include any atom that is in the first parameter and it returned the list of course since there was no atom to remove.
+\begin{lstlisting}
+(multirember 's '(r a c k e t))
+
+'(r a c k e t)
+\end{lstlisting}
+I was interested in checking if the function was case-sensitive and it turned out to be so, as it didn't remove the atom "T" from the list as the first parameter was "t" in lowercase.
+\begin{lstlisting}
+(multirember 't '(C a P i T a L))
+
+'(C a P i T a L)
+\end{lstlisting}
+Even though its kind of the same thing, I thought I would test running the multirember function with words that make up a sentence and of course the atom was removed from the list.
+\begin{lstlisting}
+(multirember 'wise '(the fool thinks he is wise but the wise knows he is a fool))
+
+'(the fool thinks he is but the knows he is a fool)
+\end{lstlisting}
+Part of my extensive testing, it is imperative that I test every aspect of my function and so I tested it by providing a list with the atom "monopoly" and tried removing the letter "o" from the function, but of course it wasn't removed since the letter "o" in the word "monopoly" is not an atom but its a letter in the word that makes an atom.
+\begin{lstlisting}
+(multirember 'o '(monopoly is fun))
+
+'(monopoly is fun)
+\end{lstlisting}
+I also tried calling the multirember function inside the first parameter of another multirember function, but I found it to be useless as thats not what this function was intended for. 
 
 \newpage
 \section{Conclusion}\label{sec:conclusion}
 
+Racket was very interesting as when I was tracing the function I could see how the atoms were being constructed in the list. Racket is an amazing multi-paradigm programming language and I am interested in trying out other languages in the Lisp-Scheme family.\\
+
+
+The "multirember" function is not a high order function and it does not have much error handling, so I want to focus next on ways to improve it. It is a very useful function though and it gave me a better understanding of how lists are used in racket.\\
+
+In Conclusion, I learned that rember is a function that removes the first instance of a parameter from a list, multirember is a function that removes all instantces of a function from a list, and recursion is the idea of a function that calls itself. Functional programing is a constructive way that does not allow the use of any form of mutation. When something has the ability to mutate, we say that the thing has an accumulated effect, identity, or state. Things with state are intractable for the reason that we cannot easily establish equality between them.\\
+
+Racket includes functions that iterate over the elements of a list. These iteration functions play a role similar to for in Java, Racket, and other languages. The body of a Racket iteration is packaged into a function to be applied to each element, so the lambda form becomes particularly handy in combination with iteration functions.
+
+
 \newpage
 \section{Appendix}\label{sec:appendix}
+
+The code for the function "rember".
+\begin{lstlisting}
+#lang racket
+
+;REMBER
+;--------
+;--------
+(define rember ;This is defining the main function rember
+  (lambda (a lat);Lambda is an anonymous function
+    
+    (cond ;Condition
+      
+      ((null? lat) (quote ())) ;Check if lat is null, then output an empty list
+      ((eq? ( car lat) a) ( cdr lat)) ;check if (car lat) = a , output cdr lat
+
+      ;Else construct a new list with the first atom of lat
+      ;And call rember to the cdr of lat
+      (else ( cons ( car lat) 
+                   (rember a ( cdr lat)))))))
+
+
+;Examples to test the program
+;-----------------------------
+;(rember 'and '(in cdr but not in car we cons car then rember and cdr))
+;(rember 'in '(in car we cons cdr))
+\end{lstlisting}
+The code for the function "multirember".
+\begin{lstlisting}
+#lang racket
+
+;TASK 1: MULTIREMBER
+;----------------------
+;----------------------
+(define multirember ;This is defining the function multirember
+  (lambda (a lat)   ;Lambda is an anonymous function
+    
+    (cond           ;Condition
+      ((null? lat) (quote ())) ;Check if lat is null
+      (else
+       (cond                   ;Condition
+         ((eq? ( car lat) a)   ; if (car lat) = a
+
+          ;if the first atom of the list == a
+          ( multirember a ( cdr lat)))
+          ;Jump back to multirember and remove the first atom of the list
+
+         
+         (else ( cons ( car lat)
+          ;Else construct a new list with every atom that is not equal to a
+                      ( multirember a
+                                    ( cdr lat)))))))))
+
+;This notation allows us to trace our recursion after constructing into an empty list '()
+(require racket/trace)
+(trace multirember)
+(multirember 'Things '(Good Things Come To Those Who Wait))
+
+;Examples to test the program
+;-----------------------------
+;(multirember 'and '(in cdr but not in car we cons car then rember and cdr))
+;(multirember 'in '(in car we cons cdr))
+\end{lstlisting}
 
 
 \end{document}
