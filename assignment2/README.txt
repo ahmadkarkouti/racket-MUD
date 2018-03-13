@@ -1,9 +1,9 @@
-"Version 0.0.2"
+"Version 0.0.5"
 ___________________
 ___________________
 
 
-I Created a canvas, and added a backgroud image to it, I then defined a new function called timer
-which would be the first room that would take place in the game.
+I added more rooms to the dungeon and the "pick" command now adds the items to a list using the insertR function.
+
 
 ________________________________________________________ 
