@@ -1,9 +1,10 @@
-"Version 0.0.5"
+"Version 0.1.0"
 ___________________
 ___________________
 
 
-I added more rooms to the dungeon and the "pick" command now adds the items to a list using the insertR function.
+I have completed a functional working version of the game, Theres still a lot of tweaking to do.
+All functionalities to picking, dropping, looking, starting, exiting the game are fully functional.
 
 
 ________________________________________________________ 
