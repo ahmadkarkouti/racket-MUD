@@ -1,10 +1,10 @@
 #lang racket
-(require racket/gui)
+(require (prefix-in picy: racket/gui))
 (require racket/draw)
-(require racket/mpair)
-(require rackunit)
-(require rackunit/text-ui)
-(require 2htdp/universe)
+(require srfi/1)
+(require srfi/13)
+(require srfi/48)
+
 (struct pos (x y))
 
 
