@@ -241,6 +241,35 @@
     ((equal? output "./goldcoin.png")
      200)))
 
+
+(define (display-objectspic db id)
+  ;; When key(id) has something stored in db, proceed
+  (when (hash-has-key? db id)
+    ;; Assigns to record the content of the key id inside the db hash table(gets previous items assigned to a room or )
+    (let* ((record (hash-ref db id))
+            ;; Formats the output(list of items in the room)
+            (output (string-join record " and ")))
+      ;; Shows items in inventory or in the ground. Adds treatment to cases where the room or the inventory are empty
+      (cond
+        ((and (equal? output "") (eq? id 'bag2)) (printf "Your inventory is empty.\n"))
+        ((and (equal? output "") (number? id)) (printf "The room is empty.\n"))
+        ((and (not (equal? output "")) (eq? id 'bag2)) (printf "You are carrying ~a.\n" output))
+        (else (when (hash-has-key? db id)
+                (cond
+                  ((equal? id 3)
+                   (draws-sprite background2 (pos 0 0))))
+                (cond
+                  ((equal? id 2)
+                   (draws-sprite background (pos 0 0))))
+                (cond
+                  ((equal? id 4)
+                   (draws-sprite fightroom (pos 0 0))))
+                (cond
+                  ((eq? importantvalue 1)
+                (draws-sprite (read-bitmap output) (pos 350 400))
+                ))
+              ))))))
+
 (define gamestart (new timer%
                    [notify-callback (lambda()
                                       (cond
