@@ -330,6 +330,44 @@
                 ;; Removes item from the ground  
                 (hash-set! db id result)))))))
 
+
+(define (drop-item id input)
+  ;; Removes the command from the input, getting only the name of the item
+  (let ((item (string-join (cdr (string-split input)))))
+    (remove-object-from-inventory inventorydb id item)))
+
+(define (drop-pic id input)
+  ;; Removes the command from the input, getting only the name of the item
+  (let ((item (string-join (cdr (string-split input)))))
+    (remove-object-from-inventorypic inventorypicdb id item)))
+
+(define (remove-object-from-inventory db id str)
+  ;; When key(id) has something stored in db, proceed
+  (when (hash-has-key? db 'bag)
+    (let* ((record (hash-ref db 'bag))
+             (result (remove (lambda (x) (string-suffix-ci? str x)) record))
+             (item (lset-difference equal? record result)))
+      (cond ((null? item)
+              (printf "You are not carrying that item!\n"))
+             (else
+              (printf "Removed ~a from your baj.\n" (first item))
+              (add-object objectdb id (first item))
+              (hash-set! db 'bag result))))))
+
+(define (remove-object-from-inventorypic db id str)
+  ;; When key(id) has something stored in db, proceed
+  (when (hash-has-key? db 'bag2)
+    (let* ((record (hash-ref db 'bag2))
+             (result (remove (lambda (x) (string-suffix-ci? str x)) record))
+             (item (lset-difference equal? record result)))
+      (cond ((null? item)
+              (printf "You are not carrying that item!\n"))
+             (else
+              (printf "Removed ~a from your baj.\n" (first item))
+              (add-objectpic objectpicdb id (first item))
+              (hash-set! db 'bag2 result))))))
+
+
 (define gamestart (new timer%
                    [notify-callback (lambda()
                                       (cond
