@@ -270,6 +270,66 @@
                 ))
               ))))))
 
+
+
+;; Remove object from the room and add to your 
+(define (remove-object-from-room db id str)
+  ;; When key(id) has something stored in db, proceed
+  (when (hash-has-key? db id)
+    ;; Assigns to record the content of the key id inside the db hash table(gets previous items assigned to a room)
+    (let* ((record (hash-ref db id))
+            ;; Remove the occurrence of the item(based on the sufix, which is the most probable user input e.g. dagger) from the room
+            (result (remove (lambda (x) (string-suffix-ci? str x)) record))
+            ;; Return the items that record have and result don't
+            (item (lset-difference equal? record result)))
+      (cond ((null? item)
+             ;; If item is null(item is not in the room), reports error
+             (printf "I don't see that item in the room!\n"))
+            (else
+              (printf "Added ~a to your baj.\n" (first item))
+              (add-objectpic inventorydb 'bag (first item))
+              ;; Checks if the item interacted with is the interdimensional communicator. If it is, the game is over
+              (if (eq? (first item) "an interdimensional communicator")
+                (begin
+                  ;; Shows message and exits game
+                  (printf "Something strange is happening...\nYOU HAVE FOUND THE WAY TO FREEDOM!\n")
+                  (exit))
+                ;; Removes item from the ground  
+                (hash-set! db id result)))))))
+
+(define importantvalue 1)
+(define (remove-object-from-roompic db id str)
+  ;; When key(id) has something stored in db, proceed
+  (when (hash-has-key? db id)
+    ;; Assigns to record the content of the key id inside the db hash table(gets previous items assigned to a room)
+    (let* ((record (hash-ref db id))
+            ;; Remove the occurrence of the item(based on the sufix, which is the most probable user input e.g. dagger) from the room
+            (result (remove (lambda (x) (string-suffix-ci? str x)) record))
+            ;; Return the items that record have and result don't
+            (item (lset-difference equal? record result)))
+      (cond ((null? item)
+             ;; If item is null(item is not in the room), reports error
+             (cond
+               ((eq? id 2)
+                (draws-sprite background (pos 0 0))))
+             (cond
+               ((eq? id 3)
+                (draws-sprite background2 (pos 0 0))))
+             (cond
+               ((eq? id 4)
+                (draws-sprite fightroom (pos 0 0)))))
+            (else
+              (printf "Added ~a to your baj.\n" (first item))
+              (add-objectpic inventorypicdb 'bag2 (first item))
+              ;; Checks if the item interacted with is the interdimensional communicator. If it is, the game is over
+              (if (eq? (first item) "an interdimensional communicator")
+                (begin
+                  ;; Shows message and exits game
+                  (printf "Something strange is happening...\nYOU HAVE FOUND THE WAY TO FREEDOM!\n")
+                  (exit))
+                ;; Removes item from the ground  
+                (hash-set! db id result)))))))
+
 (define gamestart (new timer%
                    [notify-callback (lambda()
                                       (cond
