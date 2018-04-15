@@ -170,6 +170,14 @@
                (printf "You can see exits to the ~a.\n" (string-join lostr " and "))))))))
 
 
+(define (get-location id)
+  (printf "~a\n" (car (assq-ref descriptions id)))
+  ;; Describe objects that are present in the room
+  (display-objects objectdb id)
+  (display-objectspic objectpicdb id)
+  (printf "> "))
+
+
 (define gamestart (new timer%
                    [notify-callback (lambda()
                                       (cond
