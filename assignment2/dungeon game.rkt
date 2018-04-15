@@ -49,12 +49,50 @@
 (send frame show #t)
 
 
+;; Objects description
+(define objects '((2 "a gold coin")
+                  (3 "a steel sword")))
+
+(define objectspic '((2 "./goldcoin.png")
+                     (3 "./sword.png")))
+
+(define descriptions '((1 "Welcome to the game of dungeons")
+                       (2 "You are in the Corridor.")
+                       (3 "You are in the Cellar.")
+                       (4 "You are in the Fight Room.")
+                       (5 "You are in the FREE WORLD HURAAAHHH !!!.")))
+
+(define objectdb (make-hash))
+
+(define objectpicdb (make-hash))
 
 
-(define inventory '("." ""))
 
-(define (first)
-  (set! message "Welcome to the dungeon"))
+
+;; Initializes the inventory database
+(define inventorydb (make-hash))
+
+(define inventorypicdb (make-hash))
+
+;; Lists of pairs. First we have the user's entry and second we have what our software should understand with that entry
+(define look '(((directions) look) ((look) look) ((examine room) look)))
+(define pick '(((get) pick) ((pickup) pick) ((pick) pick)))
+(define drop '(((put) drop) ((drop) drop) ((place) drop) ((remove) drop)))
+(define inventory '(((inventory) inventory) ((baj) inventory)))
+(define help '(((help) help)))
+(define quit '(((exit game) quit) ((quit game) quit) ((exit) quit) ((quit) quit)))
+(define attack '(((fight) attack) ((kill monster) attack) ((slay dragon) attack) ((attack) attack)))
+(define north-east '(((north-east) north-east)))
+
+
+;; Lists using unquote-splicing to dynamically reference all the other lists
+(define actions `(,@look ,@pick ,@drop ,@inventory ,@help ,@quit ,@attack ,@north-east))
+(define decisiontable `((1 ((start) 2) ,@actions)
+                        (2 ((north) 3) ,@actions)
+                        (3 ((west) 4) ((south) 2)  ,@actions)
+                        (4 ((east) 3) ,@actions)
+                        (5 ((restart) 1) ,@actions)))
+
 
 
 (define rember ;This is defining the main function rember
