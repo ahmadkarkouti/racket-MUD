@@ -25,7 +25,7 @@
 (define fightroom (read-bitmap "./fightroom.jpg"))
 (define monster (read-bitmap "./monster.png"))
 
-(define frame (new frame%
+(define frame (new picy:frame%
                    [label "Ahmad's Dungeon Game"]
                    [width screen_width]
                    [height screen_height])
@@ -475,24 +475,24 @@ can you are : \n
                (loop id #f))
               ((eq? response 'attack)
 
-;               (when (hash-has-key? inventorydb 'baj)
-;                 ;; Assigns to record the content of the key id inside the db hash table(gets previous items assigned to a room or baj)
-;                 (let* ((record (hash-ref inventorydb 'baj))
-;                        ;; Formats the output(list of items in the room)
-;                        (output (string-join record " and ")))
-;                   ;; Shows items in inventory or in the ground. Adds treatment to cases where the room or the inventory are empty
-;                   (cond
-;                     ((and (equal? output "") (eq? id 'baj)) (printf "Your inventory is empty.\n"))
-;                     ((and (equal? output "") (number? id) (eq? monsterlife 0)) (printf "The room is empty.\n"))
-;                     ((and (equal? output "") (number? id)) (printf "You need the sword to do that.\n"))
-;                     ((and (not (equal? output "")) (eq? id 'baj)) (printf "You are carrying ~a.\n" output))
-;                     (else (printf "You see ~a.\n" output)))
-;                   (cond
-;                     ((and (equal? output "a steel sword") (equal? id 4))
-;                      (format #t "You have Killed the monster, you should find a way to leave!\n")
-;                      (set! monsterlife 0)
-;                      (draws-sprite fightroom (pos 0 0))
-;                      ))))
+               (when (hash-has-key? inventorydb 'bag)
+                 ;; Assigns to record the content of the key id inside the db hash table(gets previous items assigned to a room or baj)
+                 (let* ((record (hash-ref inventorydb 'bag))
+                        ;; Formats the output(list of items in the room)
+                        (output (string-join record " and ")))
+                   ;; Shows items in inventory or in the ground. Adds treatment to cases where the room or the inventory are empty
+                   (cond
+                     ((and (equal? output "") (eq? id 'baj)) (printf "Your inventory is empty.\n"))
+                     ((and (equal? output "") (number? id) (eq? monsterlife 0)) (printf "The room is empty.\n"))
+                     ((and (equal? output "") (number? id)) (printf "You need the sword to do that.\n"))
+                     ((and (not (equal? output "")) (eq? id 'baj)) (printf "You are carrying ~a.\n" output))
+                     (else (printf "You see ~a.\n" output)))
+                   (cond
+                     ((and (equal? output "a steel sword") (equal? id 4))
+                      (format #t "You have Killed the monster, you should find a way to leave!\n")
+                      (set! monsterlife 0)
+                      (draws-sprite fightroom (pos 0 0))
+                      ))))
 
                               (loop id #f))
               ;; Response action is to drop an item
