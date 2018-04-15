@@ -185,6 +185,36 @@
       (add-object db (first r) (second r))) objects))
 
 
+
+(define (add-objectspic db)
+  (for-each
+    (lambda (r)
+      ;; Adds description(second r) to room id(first r)
+      (add-objectpic db (first r) (second r))) objectspic))
+
+
+
+;; Adds a given object to a database(inventory or object dbs)
+(define (add-object db id object)
+  ;; Returns true if id is stored in the database and false otherwise
+  (if (hash-has-key? db id)
+    ;; Assigns to record the content of the key id inside the db hash table(gets previous items assigned to a room or )
+    (let ((record (hash-ref db id)))
+      ;; Assigns to the table key(id) the cons between the actual object and the preexisting objects in the key
+      (hash-set! db id (cons object record)))
+    ;; Assigns the object(consed with '() to become a list) to a key(id) in the hash table
+    (hash-set! db id (cons object empty))))
+
+(define (add-objectpic db id objectpic)
+  ;; Returns true if id is stored in the database and false otherwise
+  (if (hash-has-key? db id)
+    ;; Assigns to record the content of the key id inside the db hash table(gets previous items assigned to a room or )
+    (let ((record (hash-ref db id)))
+      ;; Assigns to the table key(id) the cons between the actual object and the preexisting objects in the key
+      (hash-set! db id (cons objectpic record))
+      (display-objectspic objectpicdb id)
+  
+
 (define gamestart (new timer%
                    [notify-callback (lambda()
                                       (cond
