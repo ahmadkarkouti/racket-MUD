@@ -119,20 +119,17 @@
        (* (/ (length set) (length x)) (length set))))
    keylist))
 
+;; Returns the most probable input command
+(define (index-of-largest-number list-of-numbers)
+  ;; Sorts the list of lengths in descending order and gets the first element(greatest)
+  (let ((n (car (sort list-of-numbers >))))
+    ;; Checks if the list is not empty(returns #f if the greatest element is 0)
+    (if (zero? n)
+      #f
+      ;; Returns the index of the entry with the greatest weight, so it can be matched with the list of keywords later
+      (list-index (lambda (x) (eq? x n)) list-of-numbers))))
 
-(define valv "hi")
-(send dc set-font (make-object font% 14 'modern))
-(send dc set-text-foreground "white")
 
-
-(define my-text-field%
-  (class text-field%
-    (super-new)
-    (define/override (on-focus on?)
-      (when on? (printf "~a\n" (set! valv (send this get-value)))))))
-
-(define field-1
-  (new my-text-field% [label message] [parent frame]) )
 
 (define fightvalue 0)
 (define world 0)
