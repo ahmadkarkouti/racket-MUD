@@ -141,6 +141,34 @@
     ;; Return the accepted keywords(not their actions)
     (map (lambda (key) (car key)) keys)))
 
+(define (slist->string l)
+  (string-join (map symbol->string l)))
+
+;;;;;;;;;;; FUNCTIONS ;;;;;;;;;;;;;;;;
+
+;; Retrieve what directions you see from the room you are
+(define (get-directions id)
+  ;; Describe objects that are present in the room
+  (display-objects objectdb id)
+  ;; In list decisiontable, finds the pair that has car equals to id and assign it to record
+  (let ((record (assq id decisiontable)))
+    ;; record goes through a filter and if the second value of it is a number(this is a room), it is assigned to result. Also gets the length of n(rooms you can go to)
+    (let* ((result (filter (lambda (n) (number? (second n))) (cdr record)))
+           (n (length result)))
+      ;; Conditional case used to finally check the directions
+      (cond ((= 0 n)
+             ;; 0 directions were retrieved
+             (printf "You appear to have entered a room with no exits.\n"))
+            ((= 1 n)
+             ;; Extract the directions from result using our slist->string function
+             (printf "You can see an exit to the ~a.\n" (slist->string (caar result))))
+            (else
+             ;; The first line(losym) in let* remove the indexes(numbers) from the directions. The second one(lostr) transforms the list in a lat with the directions.
+             (let* ((losym (map (lambda (x) (car x)) result))
+                    (lostr (map (lambda (x) (slist->string x)) losym)))
+               ;; Takes the atoms from lostr and transform them into a string separated by " and "
+               (printf "You can see exits to the ~a.\n" (string-join lostr " and "))))))))
+
 
 (define gamestart (new timer%
                    [notify-callback (lambda()
