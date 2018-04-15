@@ -531,34 +531,6 @@ can you are : \n
 
 
 
-
-(define timer1 (new timer%
-                    [notify-callback (lambda()
-                                       (cond
-                                         ((and(eq? world 2) (eq? fightvalue 0))
-                                          (draws-sprite background2 (pos 0 0))
-                                          ;(draws-sprite char (pos 0 0))
-                                          ;(message-box "Title" "Do you wish to continue?" #f '(yes-no))
-                                          (draws-sprite sword (pos 350 400))
-                                          (set! valv (send field-1 get-value))
-                                          ))
-                                       (start)
-                                       )]))
-
-(define timer2 (new timer%
-                    [notify-callback (lambda()
-                                       (cond
-                                         ((eq? world 4)
-                                          (cond
-                                            ((eq? fightvalue 1)
-                                          (draws-sprite fightroom (pos 0 0))
-                                          (set! valv (send field-1 get-value))
-                                          ))))
-                                       (start)
-                                       )]))
-
-
-
 (define start (lambda()
                 (send gamestart start 100)
                 ))
