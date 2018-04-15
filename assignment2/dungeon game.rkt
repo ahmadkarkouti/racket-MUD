@@ -95,18 +95,18 @@
 
 
 
-(define rember ;This is defining the main function rember
-  (lambda (a lat);Lambda is an anonymous function
-    
-    (cond ;Condition
-      
-      ((null? lat) (quote ())) ;Check if lat is null, then output an empty list
-      ((eq? ( car lat) a) ( cdr lat)) ;check if (car lat) = a , output cdr lat
-
-      ;Else construct a new list with the first atom of lat
-      ;And call rember to the cdr of lat
-      (else ( cons ( car lat) 
-                   (rember a ( cdr lat)))))))
+;; Receives the id(current room number) and a list of symbols that represents the user input(tokens)
+(define (lookup id tokens)
+  ;; Assigns to record a list with the possible actions for the current room
+  (let* ((record (assv-ref decisiontable id))
+         ;; Assigns to keylist a list with the valid keywords for the game
+         (keylist (get-keywords id))
+         ;; By calling list-of-lengths, creates a list of lengths with the most probable commands and then decide which one is the most probable using index-of-largest-number
+         (index (index-of-largest-number (list-of-lengths keylist tokens))))
+    ;; If there is an index(prevent errors), retrieves the command that is present in that index inside the list record(list which contains the valid actions for the current room). Otherwise returns false
+    (if index 
+      (cadr (list-ref record index))
+      #f)))
 
 
 (define insertR
