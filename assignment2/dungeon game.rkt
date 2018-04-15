@@ -401,54 +401,133 @@ can you are : \n
 
 
 
-(define gamestart (new timer%
-                   [notify-callback (lambda()
-                                      (cond
-                                        ((and(eq? world 0) (eq? endy 0))  ; if (car lat) = a
-                                         (set! valv (send field-1 get-value))
-                                         ;if the first atom of the list == a
-                                         
-                                      
-                                         (draws-sprite startscreen (pos 0 0))
-                                         ;(send dc draw-text "Level " (- (* width done) 280) 5)
-                                         ;(message-box "Title" "Do you wish to continue?" #f '(yes-no))
-                                         (first)))
-                                      (cond
-                                        ((eq? endy 1)   ; if (car lat) = a
-                                         (set! valv (send field-1 get-value))
-                                         ;if the first atom of the list == a
-                                         
-                                      
-                                         (draws-sprite exitpic (pos 0 0))
-                                         ;(send dc draw-text "Level " (- (* width done) 280) 5)
-                                         ;(message-box "Title" "Do you wish to continue?" #f '(yes-no))
-                                         (first)))
-                                      (cond
-                                         ((eq? fightvalue 1)
-                                          (draws-sprite fightroom (pos 0 0))
-                                          (draws-sprite monster (pos 500 300))
-                                          (set! valv (send field-1 get-value))
-                                          ))
+(define monsterlife 1)
 
-                                      (cond
-                                        ((eq? world 1)   ; if (car lat) = a
-                                         
-                                         ;if the first atom of the list == a
-                                         
-                                      
-                                         (draws-sprite background (pos 0 0))
-                                         ;(send dc draw-text "Level " (- (* width done) 280) 5)
-                                         ;(message-box "Title" "Do you wish to continue?" #f '(yes-no))
-                                         (set! valv (send field-1 get-value))
-                                         ))
-                                      
-                                      (start)
+(define (gamestart initial-id)
+    (let loop ((id initial-id) (description #t))
+    (if description
+        ;; If there is an available description, shows it on the screen
+        (get-location id)
+        ;; Else statement. Don't show location(because there isn't any description). Just shows the greater than symbol to incite user to type in text field
+        (printf "> "))
+    ;; Read input from the keyboard
+    (let* ((input (read-line))
+           ;; Function contained in the srfi/13 library, tokenize the input into substrings where a space character is found
+           (string-tokens (string-tokenize input))
+           ;; Creates a list of symbols(not strings) with the input. This is needed to compare the entry with our predefined lists
+           (tokens (map string->symbol string-tokens)))
+      ;; Decides which action response corresponds to. One of the most important calls in the code
+      (let ((response (lookup id tokens)))
+        (cond
+          ((eq? response 'restart )
+           (set! monster 1)))
+        (cond
+          ((eq? response 1 )
+           (draws-sprite startscreen (pos 0 0))))
+        (cond
+          ((eq? response 2 )
+           (draws-sprite background (pos 0 0))))
+        (cond
+          ((eq? response 3 )
+           (draws-sprite background2 (pos 0 0))
+           ))
+        (cond
+          ((and (eq? monster 1) (eq? response 4)
+                )
+           (set! monster (read-bitmap "./monster.png"))
+           (draws-sprite monster (pos 500 300))))
+        (cond
+          ((eq? response 4 )
+           (draws-sprite fightroom (pos 0 0))
+          (draws-sprite monster (pos 500 300))))
 
+      (cond
+        ((eq? response 5 )
+         (draws-sprite exitpic (pos 0 0))))
+        ;(printf "Input: ~a\nTokens: ~a\nResponse: ~a\n" input tokens response)
+        (cond ((number? response)
+               (loop response #t))
+              ;; If response meaning couldn't be found after the lookup function, shows error message
+              ((eq? #f response)
+               (format #t "Huh? I didn't understand that!\n")
+               (loop id #f))
+              ;; Response action is look at around the room for directions
+              ((eq? response 'look)
+               (cond
+                 ((and (eq? id 4) (eq? monsterlife 0))
+                  (format #t "You hear a whisper! <<the real exit is north-east>>\n")))
+               ;; Retrieve possible directions
+               (get-directions id)
+               (loop id #f))
+              ;; Response action is to pick an item
+              ((eq? response 'pick)
+               (pick-item id input)
+               (pick-pic id input)
+               (cond
+                 ((eq? id 2)
+                  (draws-sprite background (pos 0 0))))
+               (cond
+                 ((eq? id 3)
+                  (draws-sprite background2 (pos 0 0))))
+               (cond
+                 ((eq? id 4)
+                  (draws-sprite fightroom (pos 0 0))))
+               (loop id #f))
+              ((eq? response 'attack)
 
-                                      
+;               (when (hash-has-key? inventorydb 'baj)
+;                 ;; Assigns to record the content of the key id inside the db hash table(gets previous items assigned to a room or baj)
+;                 (let* ((record (hash-ref inventorydb 'baj))
+;                        ;; Formats the output(list of items in the room)
+;                        (output (string-join record " and ")))
+;                   ;; Shows items in inventory or in the ground. Adds treatment to cases where the room or the inventory are empty
+;                   (cond
+;                     ((and (equal? output "") (eq? id 'baj)) (printf "Your inventory is empty.\n"))
+;                     ((and (equal? output "") (number? id) (eq? monsterlife 0)) (printf "The room is empty.\n"))
+;                     ((and (equal? output "") (number? id)) (printf "You need the sword to do that.\n"))
+;                     ((and (not (equal? output "")) (eq? id 'baj)) (printf "You are carrying ~a.\n" output))
+;                     (else (printf "You see ~a.\n" output)))
+;                   (cond
+;                     ((and (equal? output "a steel sword") (equal? id 4))
+;                      (format #t "You have Killed the monster, you should find a way to leave!\n")
+;                      (set! monsterlife 0)
+;                      (draws-sprite fightroom (pos 0 0))
+;                      ))))
 
-
-                                      )]))
+                              (loop id #f))
+              ;; Response action is to drop an item
+              ((eq? response 'drop)
+               ;; Drop item
+               (drop-pic id input)
+               (drop-item id input)
+               (display-objectspic objectpicdb id)
+               (loop id #f))
+              ;; Response action is to show inventory
+              ((eq? response 'north-east)
+               (cond
+                 ((and(eq? id 4) (eq? monsterlife 0))
+               (draws-sprite exitpic (pos 0 0))
+               (drop-item 3 input)
+               (send (gamestart 5) start 100)))
+               (format #t "You need to kill the monster first!\n")
+               (loop id #f)
+               )
+              ((eq? response 'inventory)
+               ;; Displays the inventory
+               (display-inventory)
+               (display-inventorypic)
+               (loop id #f))
+              ;; Response action is to display the help file
+              ((eq? response 'help)
+                ;; Displays Help text on the screen
+                (display-help)
+                (loop id #f))
+              ;; Exit game command
+              ((eq? response 'quit)
+               ;; Exit the application
+               (picy:message-box "Bye" "Hasta lavista baby" #f '(ok))
+               (send frame show #f)
+               (exit)))))))
 
 
 
