@@ -109,17 +109,15 @@
       #f)))
 
 
-(define insertR
-  (lambda (new old lat)
-    (cond
-      ((null? lat) (quote ()))
-      (else (cond
-              ( ( eq? ( car lat) old)
-                ( cons old
-                       ( cons new ( cdr lat))))
-              (else ( cons ( car lat)
-                           ( insertR new old
-                                     ( cdr lat))))))))) 
+;; Returns a list of lengths that shows the most probable commands given by the user. e.g. (0 0 0 3 0 0 0 0)
+(define (list-of-lengths keylist tokens)
+  (map 
+   (lambda (x)
+     ;; Returns the intersection between the tokens list(command given) and the keyword
+     (let ((set (lset-intersection eq? tokens x)))
+       ;; If there is an intersection between the lists, the length of set will not be zero, and thus, the result will have some weight
+       (* (/ (length set) (length x)) (length set))))
+   keylist))
 
 
 (define valv "hi")
