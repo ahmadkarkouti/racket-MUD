@@ -177,6 +177,13 @@
   (display-objectspic objectpicdb id)
   (printf "> "))
 
+;; Pregame population of rooms with objects
+(define (add-objects db)
+  (for-each
+    (lambda (r)
+      ;; Adds description(second r) to room id(first r)
+      (add-object db (first r) (second r))) objects))
+
 
 (define gamestart (new timer%
                    [notify-callback (lambda()
