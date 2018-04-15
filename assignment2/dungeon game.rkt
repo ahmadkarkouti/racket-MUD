@@ -212,8 +212,34 @@
     (let ((record (hash-ref db id)))
       ;; Assigns to the table key(id) the cons between the actual object and the preexisting objects in the key
       (hash-set! db id (cons objectpic record))
-      (display-objectspic objectpicdb id)
-  
+      (display-objectspic objectpicdb id))
+    ;; Assigns the object(consed with '() to become a list) to a key(id) in the hash table
+    (hash-set! db id (cons objectpic empty))))
+
+(define (assq-ref assqlist id)
+  (cdr (assq id assqlist)))
+
+(define (display-objects db id)
+  ;; When key(id) has something stored in db, proceed
+  (when (hash-has-key? db id)
+    ;; Assigns to record the content of the key id inside the db hash table(gets previous items assigned to a room or )
+    (let* ((record (hash-ref db id))
+            ;; Formats the output(list of items in the room)
+            (output (string-join record " and ")))
+      ;; Shows items in inventory or in the ground. Adds treatment to cases where the room or the inventory are empty
+      (cond
+        ((and (equal? output "") (eq? id 'bag)) (printf "Your inventory is empty.\n"))
+        ((and (equal? output "") (number? id)) (printf "The room is empty.\n"))
+        ((and (not (equal? output "")) (eq? id 'bag)) (printf "You are carrying ~a.\n" output))
+        (else (printf "You see ~a.\n" output))))))
+
+(define (piclocation output)
+  (cond
+    ((equal? output "./sword.png")
+     350))
+  (cond
+    ((equal? output "./goldcoin.png")
+     200)))
 
 (define gamestart (new timer%
                    [notify-callback (lambda()
