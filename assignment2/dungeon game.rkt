@@ -368,6 +368,39 @@
               (hash-set! db 'bag2 result))))))
 
 
+(define (pick-item id input)
+  ;; Removes the command from the input, getting only the name of the item
+  (let ((item (string-join (cdr (string-split input)))))
+    (remove-object-from-room objectdb id item)))
+
+(define (pick-pic id input)
+  ;; Removes the command from the input, getting only the name of the item
+  (let ((item (string-join (cdr (string-split input)))))
+    (remove-object-from-roompic objectpicdb id item)))
+
+(define (display-inventory)
+  (display-objects inventorydb 'bag))
+
+(define (display-inventorypic)
+  (display-objectspic inventorypicdb 'bag2))
+
+
+(define (display-help)
+
+    (picy:message-box "I am here to help you" "Aloha explorers, you must find and kill da monster to leave\n the commands that you
+can you are : \n
+- look
+- pick
+- drop
+- inventory
+- attack
+- help
+- quit
+
+--~~~~~~ Ahmad Karkouti  ~~~~~~~--" #f '(ok)))
+
+
+
 (define gamestart (new timer%
                    [notify-callback (lambda()
                                       (cond
