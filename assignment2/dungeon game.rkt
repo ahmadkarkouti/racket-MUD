@@ -135,7 +135,11 @@
   (cdr (assv id assqlist)))
 
 
-
+(define (get-keywords id)
+  ;; Assigns to keys a list with the possible actions for the current room
+  (let ((keys (assq-ref decisiontable id)))
+    ;; Return the accepted keywords(not their actions)
+    (map (lambda (key) (car key)) keys)))
 
 
 (define gamestart (new timer%
