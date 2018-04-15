@@ -535,4 +535,8 @@ can you are : \n
                 (send gamestart start 100)
                 ))
 
-(start)
+
+(add-objects objectdb)
+(add-objectspic objectpicdb)
+(draws-sprite startscreen (pos 0 0))
+(send (gamestart 1) start 100)
