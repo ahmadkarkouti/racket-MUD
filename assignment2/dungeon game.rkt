@@ -36,14 +36,10 @@
   (send dc draw-bitmap sprite (pos-x  poss) (pos-y poss))
   )
 
-(define msg (new message% [parent frame] [label ""]))
-(define (canvas-key frame) (class canvas%
+(define msg (new picy:message% [parent frame] [label ""]))
+(define (canvas-key frame) (class picy:canvas%
                              (define/override (on-char key-event)
                                (cond
-                                 [(equal? (send key-event get-key-code) #\return) (send buttony callback)]
-                                 [(equal? (send key-event get-key-code) 'down) (send msg set-label "DOWN")]
-                                 [(equal? (send key-event get-key-code) 'left)(send msg set-label "LEFT")]
-                                 [(equal? (send key-event get-key-code) 'right) (send msg set-label "RIGHT")]
                                  [else (send msg set-label "Others")]))
                              (super-new [parent frame])))
 

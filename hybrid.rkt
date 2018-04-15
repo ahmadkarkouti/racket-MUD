@@ -37,3 +37,20 @@
                         (3 ((west) 4) ((south west) 2) ((north east) 5) ,@actions)
                         (4 ((south east) 2) ((east) 3) ,@actions)
                         (5 ((south west) 3) ,@actions)))
+
+
+
+
+
+;; <><>><><><<><><><><><><><<>><><><><||||| Functions ||||| ><><>><><><<><><><><><><><<>><><><> ;;
+
+(define (get-location id)
+  (printf "~a\n" (car (assq-ref descriptions id)))
+  ;; Describe objects that are present in the room
+  (display-objects objectdb id)
+  (printf "> "))
+
+
+
+
+
