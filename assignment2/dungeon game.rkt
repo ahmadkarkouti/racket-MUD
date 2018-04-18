@@ -126,105 +126,147 @@
 (define resva 1)
 
 
-;; Returns the most probable input command
-(define (index-of-largest-number list-of-numbers)
-  ;; Sorts the list of lengths in descending order and gets the first element(greatest)
-  (let ((n (car (sort list-of-numbers >))))
-    ;; Checks if the list is not empty(returns #f if the greatest element is 0)
-    (if (zero? n)
-      #f
-      ;; Returns the index of the entry with the greatest weight, so it can be matched with the list of keywords later
-      (list-index (lambda (x) (eq? x n)) list-of-numbers))))
+;;START OF ALLOCATION OF ITENS AND ROOM NAMES
+(random-allocator rooms room-type 100)
+;(random-allocator roomspic room-type 100)
+
+;(random-allocator objectdb objects 70)       ;;allocate items to the rooms
+(random-key-location objectdb key_objects)   ;;allocate keys to the rooms
+(random-key-location objectpicdb key_objectspic)
+;;END OF ALLOCATION
+
+;(define mynumber 0)
+;; ADVANCED COMMAND LINE PROCESSOR WITH MAZE
+(define (startgame-maze)
+  (let* ((gatekey (car (ass-ref key_objects (random(length key_objects)) assq)))
+         (gate_x 4)
+         (gate_y 4)
+         (gatekey "a gold coin")
+         (start '(0 0)))
+   ;;the following prints will help with testing, telling the developer where the gate is located and what key is the right one
+;    (printf "~a \n" gate_x)
+;    (printf "~a \n" useless)
+;    (printf "~a \n" randomy)
+;    (printf "~a \n" randomy)
+;    (printf "~a \n" randomy)
+;    (printf "~a \n" (randomy2))
+;    (printf "~a \n" (randomy2))
+;    (printf "~a \n" (randomy2))
+;    (printf "~a \n" (randomy2))
+;    (printf "~a \n" gate_y)
+;    (printf "~a \n" gatekey)
+;    (printf "~a \n " start)
+    (let loop ((rid start))
+      (cond
+        ((equal? (hash-ref rooms rid) "cellar")
+         (draws-sprite (picy:read-bitmap "./images/cellar.jpg") (pos 0 0)))
+        ((equal? (hash-ref rooms rid) "mystic room")
+         (draws-sprite (picy:read-bitmap "./images/mystic.jpg") (pos 0 0)))
+        ((equal? (hash-ref rooms rid) "hallway")
+         (draws-sprite (picy:read-bitmap "./images/hallway.jpg") (pos 0 0)))
+        ((equal? (hash-ref rooms rid) "temple")
+         (draws-sprite (picy:read-bitmap "./images/temple.jpg") (pos 0 0)))
+        ((equal? (hash-ref rooms rid) "lobby")
+         (draws-sprite (picy:read-bitmap "./images/lobby.png") (pos 0 0)))
+        ((equal? (hash-ref rooms rid) "hallway")
+         (draws-sprite (picy:read-bitmap "./images/hallway.jpg") (pos 0 0)))
+        ((equal? (hash-ref rooms rid) "court")
+         (draws-sprite (picy:read-bitmap "./images/court.png") (pos 0 0)))
+        ((equal? (hash-ref rooms rid) "pass")
+         (draws-sprite (picy:read-bitmap "./images/pass.jpg") (pos 0 0))))
+      (display-objectspic objectpicdb rid)
+      ;(printf "You are in the ~a \n>" (hash-ref rooms rid))
+      (printf "You are in the ~a \n>" (hash-ref rooms rid))
+      ;(printf "~a" (hash-ref roomspic rid))
+      ;(set! newimage (picy:read-bitmap (hash-ref roomspic rid)))
+      ;(draws-sprite (picy:read-bitmap (hash-ref rooms rid)) (pos 0 0))
+      (cond
+       ((eq? resva 1)
+      (read-line)
+      (set! resva 0)))
+      (let* ((input (read-line))
+             (string-tokens (string-tokenize input))
+             (tokens (map string->symbol string-tokens))
+             (response (call-actions rid tokens cadr))) ;;get action
+        
+
+      
+        (cond ((eq? response 'direction)
+               (let* ((direction (call-actions rid tokens caar)) ;get direction typed
+                      (newlocation (move-room rid direction)))  ;get future location after move
+                 (cond((member direction (paths rid)) ;check if direction is in path
+                       (cond ((equal? newlocation (list gate_x gate_y)) ;end of game condition
+                              (cond ((not (door-handle gatekey))
+                                     (printf "It seems that you don't have the key to open the gate. \n")
+                                     (loop newlocation))
+                                    (else
+                                     (printf "You used the key to open the gate. You are free! \n")
+                                     (exit))))
+                         (else
+                          (loop newlocation))));;not in the gate
+   
+                      (else ;;direction not in path
+                       (printf "You can not go that way!\n")
+                       (loop rid)))))
+            
+              ((eq? #f response)
+               (format #t "I am sorry, but I didn't understand that!\n")
+               (loop rid)
+               )
+            
+              ((eq? response 'look)
+              (show-maze m rid)
+               (display-objects objectdb rid)
+               (loop rid))
+              ((eq? response 'start)
+               (loop rid))
+              ((eq? response 'mazemap)
+               (show-maze m rid)
+              ;(display-objects objectdb rid)
+               (loop rid))
+              ((eq? response 'pick)
+             ;remove item from room and put into inventory
+               (handle-item 'room rid input)
+               (pick-pic rid input)
+               (loop rid))
+            
+              ((eq? response 'inventory)
+               (display-inventory) ;;show inventorydb
+               (loop rid))
+            
+              ((eq? response 'quit)
+               (format #t "- Done by Ahmad Karkouti...\n")
+               (draws-sprite exitpic (pos 0 0))
+               ( let (( inputer ( read )))
+                  ( cond [( eq? inputer 'restart ) (send (startgame-maze) start 100)])
+                  ( cond [( eq? inputer 'quit ) ( exit )])))
+               ;( exit ))
+            
+              ((eq? response 'drop)
+               (drop-pic rid input)
+               ;remove item from inventory and drop on the current room
+               (drop-item rid input)
+               ;(handle-item 'bag rid input)
+               (loop rid)))))))
 
 
+(define (drop-item id input)
+  ;; Removes the command from the input, getting only the name of the item
+  (let ((item (string-join (cdr (string-split input)))))
+    (remove-object-from-inventory inventorydb id item)))
 
-(define (assv-ref assqlist id)
-  (cdr (assv id assqlist)))
-
-
-(define (get-keywords id)
-  ;; Assigns to keys a list with the possible actions for the current room
-  (let ((keys (assq-ref decisiontable id)))
-    ;; Return the accepted keywords(not their actions)
-    (map (lambda (key) (car key)) keys)))
-
-(define (slist->string l)
-  (string-join (map symbol->string l)))
-
-;;;;;;;;;;; FUNCTIONS ;;;;;;;;;;;;;;;;
-
-;; Retrieve what directions you see from the room you are
-(define (get-directions id)
-  ;; Describe objects that are present in the room
-  (display-objects objectdb id)
-  ;; In list decisiontable, finds the pair that has car equals to id and assign it to record
-  (let ((record (assq id decisiontable)))
-    ;; record goes through a filter and if the second value of it is a number(this is a room), it is assigned to result. Also gets the length of n(rooms you can go to)
-    (let* ((result (filter (lambda (n) (number? (second n))) (cdr record)))
-           (n (length result)))
-      ;; Conditional case used to finally check the directions
-      (cond ((= 0 n)
-             ;; 0 directions were retrieved
-             (printf "You appear to have entered a room with no exits.\n"))
-            ((= 1 n)
-             ;; Extract the directions from result using our slist->string function
-             (printf "You can see an exit to the ~a.\n" (slist->string (caar result))))
-            (else
-             ;; The first line(losym) in let* remove the indexes(numbers) from the directions. The second one(lostr) transforms the list in a lat with the directions.
-             (let* ((losym (map (lambda (x) (car x)) result))
-                    (lostr (map (lambda (x) (slist->string x)) losym)))
-               ;; Takes the atoms from lostr and transform them into a string separated by " and "
-               (printf "You can see exits to the ~a.\n" (string-join lostr " and "))))))))
-
-
-(define (get-location id)
-  (printf "~a\n" (car (assq-ref descriptions id)))
-  ;; Describe objects that are present in the room
-  (display-objects objectdb id)
-  (display-objectspic objectpicdb id)
-  (printf "> "))
-
-;; Pregame population of rooms with objects
-(define (add-objects db)
-  (for-each
-    (lambda (r)
-      ;; Adds description(second r) to room id(first r)
-      (add-object db (first r) (second r))) objects))
-
-
-
-(define (add-objectspic db)
-  (for-each
-    (lambda (r)
-      ;; Adds description(second r) to room id(first r)
-      (add-objectpic db (first r) (second r))) objectspic))
-
-
-
-;; Adds a given object to a database(inventory or object dbs)
-(define (add-object db id object)
-  ;; Returns true if id is stored in the database and false otherwise
-  (if (hash-has-key? db id)
-    ;; Assigns to record the content of the key id inside the db hash table(gets previous items assigned to a room or )
-    (let ((record (hash-ref db id)))
-      ;; Assigns to the table key(id) the cons between the actual object and the preexisting objects in the key
-      (hash-set! db id (cons object record)))
-    ;; Assigns the object(consed with '() to become a list) to a key(id) in the hash table
-    (hash-set! db id (cons object empty))))
-
-(define (add-objectpic db id objectpic)
-  ;; Returns true if id is stored in the database and false otherwise
-  (if (hash-has-key? db id)
-    ;; Assigns to record the content of the key id inside the db hash table(gets previous items assigned to a room or )
-    (let ((record (hash-ref db id)))
-      ;; Assigns to the table key(id) the cons between the actual object and the preexisting objects in the key
-      (hash-set! db id (cons objectpic record))
-      (display-objectspic objectpicdb id))
-    ;; Assigns the object(consed with '() to become a list) to a key(id) in the hash table
-    (hash-set! db id (cons objectpic empty))))
-
-(define (assq-ref assqlist id)
-  (cdr (assq id assqlist)))
+(define (remove-object-from-inventory db id str)
+  ;; When key(id) has something stored in db, proceed
+  (when (hash-has-key? db 'bag)
+    (let* ((record (hash-ref db 'bag))
+             (result (remove (lambda (x) (string-suffix-ci? str x)) record))
+             (item (lset-difference equal? record result)))
+      (cond ((null? item)
+              (printf "You are not carrying that item!\n"))
+             (else
+              (printf "Removed ~a from your bag.\n" (first item))
+              (add-object objectdb id (first item))
+              (hash-set! db 'bag result))))))
 
 (define (display-objects db id)
   ;; When key(id) has something stored in db, proceed
