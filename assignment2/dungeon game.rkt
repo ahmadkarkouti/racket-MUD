@@ -67,55 +67,64 @@
 
 
 
-;; Initializes the inventory database
-(define inventorydb (make-hash))
-
-(define inventorypicdb (make-hash))
-
-;; Lists of pairs. First we have the user's entry and second we have what our software should understand with that entry
-(define look '(((directions) look) ((look) look) ((examine room) look)))
-(define pick '(((get) pick) ((pickup) pick) ((pick) pick)))
-(define drop '(((put) drop) ((drop) drop) ((place) drop) ((remove) drop)))
-(define inventory '(((inventory) inventory) ((baj) inventory)))
-(define help '(((help) help)))
-(define quit '(((exit game) quit) ((quit game) quit) ((exit) quit) ((quit) quit)))
-(define attack '(((fight) attack) ((kill monster) attack) ((slay dragon) attack) ((attack) attack)))
-(define north-east '(((north-east) north-east)))
+;;get the keywords on association table
+(define (get-keywords id)
+  (let ((keys (ass-ref decisiontable id assq)))
+    (map (lambda (key) (car key)) keys)))
 
 
-;; Lists using unquote-splicing to dynamically reference all the other lists
-(define actions `(,@look ,@pick ,@drop ,@inventory ,@help ,@quit ,@attack ,@north-east))
-(define decisiontable `((1 ((start) 2) ,@actions)
-                        (2 ((north) 3) ,@actions)
-                        (3 ((west) 4) ((south) 2)  ,@actions)
-                        (4 ((east) 3) ,@actions)
-                        (5 ((restart) 1) ,@actions)))
-
-
-
-;; Receives the id(current room number) and a list of symbols that represents the user input(tokens)
-(define (lookup id tokens)
-  ;; Assigns to record a list with the possible actions for the current room
-  (let* ((record (assv-ref decisiontable id))
-         ;; Assigns to keylist a list with the valid keywords for the game
-         (keylist (get-keywords id))
-         ;; By calling list-of-lengths, creates a list of lengths with the most probable commands and then decide which one is the most probable using index-of-largest-number
-         (index (index-of-largest-number (list-of-lengths keylist tokens))))
-    ;; If there is an index(prevent errors), retrieves the command that is present in that index inside the list record(list which contains the valid actions for the current room). Otherwise returns false
-    (if index 
-      (cadr (list-ref record index))
-      #f)))
-
-
-;; Returns a list of lengths that shows the most probable commands given by the user. e.g. (0 0 0 3 0 0 0 0)
+;; outputs a list in the form: (0 0 0 2 0 0) based on some weightening
 (define (list-of-lengths keylist tokens)
   (map 
    (lambda (x)
-     ;; Returns the intersection between the tokens list(command given) and the keyword
      (let ((set (lset-intersection eq? tokens x)))
-       ;; If there is an intersection between the lists, the length of set will not be zero, and thus, the result will have some weight
+       ;; apply some weighting to the result
        (* (/ (length set) (length x)) (length set))))
    keylist))
+
+
+;return the index of the highest number on the list provided by the function
+;(list-of-lenghts)
+(define (index-of-largest-number list-of-numbers)
+  (let ((n (car (sort list-of-numbers >))))
+    (if (zero? n)
+        #f
+        (list-index (lambda (x) (eq? x n)) list-of-numbers))))
+
+
+;;Receive a function as parameters so it can be reused
+;;this function can both get the actions and words attached to it
+;;depending on the function passed
+(define (call-actions id tokens func)
+  (let* ((record (ass-ref decisiontable 1 assv)) ;;get the references
+         (keylist (get-keywords 1)) ;;get the keywords
+         ;;description in the functions
+         (index (index-of-largest-number (list-of-lengths keylist tokens)))) 
+    (if index 
+        (func (list-ref record index)) ;;return result if match, return false if dont
+        #f)))
+
+
+;;THIS FUNCTION WILL EVALUATE IF THE USER HAVE THE KEY NECESSARY TO OPEN THE GATE
+(define (door-handle gatekey)
+  (printf "You can see the exit gate, but it is locked. \n")
+  (cond ((hash-has-key? inventorydb 'bag)
+         (let* ((record (hash-ref inventorydb 'bag)) ;;get items list in bag
+                (result (remove (lambda (x) (string-suffix-ci? gatekey x)) record)) ;;result = record - bag
+                (item (lset-difference equal? record result))) ;; compare them
+           (cond ((null? item) ;;if there is no difference, the key was removed, return true
+             (cond
+               ((not (hash-empty? inventorydb))
+               #t)))
+        (else
+         #f))))))
+
+(define newimage "")
+(define (assq-ref assqlist id)
+  (cdr (assq id assqlist)))
+
+(define resva 1)
+
 
 ;; Returns the most probable input command
 (define (index-of-largest-number list-of-numbers)
