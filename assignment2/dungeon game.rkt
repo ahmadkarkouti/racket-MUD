@@ -23,47 +23,47 @@
 (define gatekey "")
 ;; END OF DEFINITIONS
 
-(define frame (new picy:frame%
-                   [label "Ahmad's Dungeon Game"]
-                   [width screen_width]
-                   [height screen_height])
-  )
+; THIS FUNCTION WILL DEFINE THE START POINT
+(define (startpoint)
+  (let*((start_x (random X))
+        (start_y (random Y)))
+  (list start_x start_y)))
+
+;; refactored functions assq-ref and assv-ref into only one ass-ref
+;; we pass what we want as parameter (assq or assv)
+(define (ass-ref assqlist id x)
+  (cdr (x id assqlist)))
+
+;(random-allocator)
+;randomly allocates something to a position in the maze
+;a rate can be applied to allocate only to some cells (rooms)
+;for instance: if the rate is 50, a room will have 50%
+;chance of have a random item.
+(define (random-allocator db types rate)
+  (for ((j X))
+    (for ((i Y))
+      (cond ((<= (random 100) rate)
+             (cond((equal? db rooms) ; add the name to the room
+                   (hash-set! db (list j i) (car( ass-ref types (random (- (length types) 1)) assq))))
+                  ;((equal? db roomspic) ; add the name to the room
+                   ;(hash-set! db (list j i) (car( ass-ref types (random (- (length types) 1)) assq))))
+                  (else ;add to objectdb
+                   (add-object db (list j i) (car (ass-ref types (random (- (length types) 1)) assq))))))))))
+
+(define useless 1)
+(define (ranny)
+  2)
+(ranny)
+(define randomy 3)
 
 
-(define (draws-sprite sprite poss)
-  (send dc draw-bitmap sprite (pos-x  poss) (pos-y poss))
-  )
-
-(define msg (new picy:message% [parent frame] [label ""]))
-(define (canvas-key frame) (class picy:canvas%
-                             (define/override (on-char key-event)
-                               (cond
-                                 [else (send msg set-label "Others")]))
-                             (super-new [parent frame])))
-
-
-(define canvas ( new (canvas-key frame)))
-(define dc (send canvas get-dc))
-(send frame show #t)
-
-
-;; Objects description
-(define objects '((2 "a gold coin")
-                  (3 "a steel sword")))
-
-(define objectspic '((2 "./goldcoin.png")
-                     (3 "./sword.png")))
-
-(define descriptions '((1 "Welcome to the game of dungeons")
-                       (2 "You are in the Corridor.")
-                       (3 "You are in the Cellar.")
-                       (4 "You are in the Fight Room.")
-                       (5 "You are in the FREE WORLD HURAAAHHH !!!.")))
-
-(define objectdb (make-hash))
-
-(define objectpicdb (make-hash))
-
+(define (ranny2)
+  (random 1))
+(define randomy2 ranny2)
+;will place one unit of each type of key randomly on the maze
+(define (random-key-location db types)
+  (for ((i (length types)))
+    (add-object db (list (ranny) (ranny)) (car (ass-ref types i assq)))))
 
 
 
