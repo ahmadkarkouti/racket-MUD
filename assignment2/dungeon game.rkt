@@ -268,85 +268,24 @@
               (add-object objectdb id (first item))
               (hash-set! db 'bag result))))))
 
-(define (display-objects db id)
+(define (remove-object-from-inventorypic db id str)
   ;; When key(id) has something stored in db, proceed
-  (when (hash-has-key? db id)
-    ;; Assigns to record the content of the key id inside the db hash table(gets previous items assigned to a room or )
-    (let* ((record (hash-ref db id))
-            ;; Formats the output(list of items in the room)
-            (output (string-join record " and ")))
-      ;; Shows items in inventory or in the ground. Adds treatment to cases where the room or the inventory are empty
-      (cond
-        ((and (equal? output "") (eq? id 'bag)) (printf "Your inventory is empty.\n"))
-        ((and (equal? output "") (number? id)) (printf "The room is empty.\n"))
-        ((and (not (equal? output "")) (eq? id 'bag)) (printf "You are carrying ~a.\n" output))
-        (else (printf "You see ~a.\n" output))))))
-
-(define (piclocation output)
-  (cond
-    ((equal? output "./sword.png")
-     350))
-  (cond
-    ((equal? output "./goldcoin.png")
-     200)))
-
-
-(define (display-objectspic db id)
-  ;; When key(id) has something stored in db, proceed
-  (when (hash-has-key? db id)
-    ;; Assigns to record the content of the key id inside the db hash table(gets previous items assigned to a room or )
-    (let* ((record (hash-ref db id))
-            ;; Formats the output(list of items in the room)
-            (output (string-join record " and ")))
-      ;; Shows items in inventory or in the ground. Adds treatment to cases where the room or the inventory are empty
-      (cond
-        ((and (equal? output "") (eq? id 'bag2)) (printf "Your inventory is empty.\n"))
-        ((and (equal? output "") (number? id)) (printf "The room is empty.\n"))
-        ((and (not (equal? output "")) (eq? id 'bag2)) (printf "You are carrying ~a.\n" output))
-        (else (when (hash-has-key? db id)
-                (cond
-                  ((equal? id 3)
-                   (draws-sprite background2 (pos 0 0))))
-                (cond
-                  ((equal? id 2)
-                   (draws-sprite background (pos 0 0))))
-                (cond
-                  ((equal? id 4)
-                   (draws-sprite fightroom (pos 0 0))))
-                (cond
-                  ((eq? importantvalue 1)
-                (draws-sprite (read-bitmap output) (pos 350 400))
-                ))
-              ))))))
-
-
-
-;; Remove object from the room and add to your 
-(define (remove-object-from-room db id str)
-  ;; When key(id) has something stored in db, proceed
-  (when (hash-has-key? db id)
-    ;; Assigns to record the content of the key id inside the db hash table(gets previous items assigned to a room)
-    (let* ((record (hash-ref db id))
-            ;; Remove the occurrence of the item(based on the sufix, which is the most probable user input e.g. dagger) from the room
-            (result (remove (lambda (x) (string-suffix-ci? str x)) record))
-            ;; Return the items that record have and result don't
-            (item (lset-difference equal? record result)))
+  (when (hash-has-key? db 'bag2)
+    (let* ((record (hash-ref db 'bag2))
+             (result (remove (lambda (x) (string-suffix-ci? str x)) record))
+             (item (lset-difference equal? record result)))
       (cond ((null? item)
-             ;; If item is null(item is not in the room), reports error
-             (printf "I don't see that item in the room!\n"))
-            (else
-              (printf "Added ~a to your baj.\n" (first item))
-              (add-objectpic inventorydb 'bag (first item))
-              ;; Checks if the item interacted with is the interdimensional communicator. If it is, the game is over
-              (if (eq? (first item) "an interdimensional communicator")
-                (begin
-                  ;; Shows message and exits game
-                  (printf "Something strange is happening...\nYOU HAVE FOUND THE WAY TO FREEDOM!\n")
-                  (exit))
-                ;; Removes item from the ground  
-                (hash-set! db id result)))))))
+              (printf "You are not carrying that item!\n"))
+             (else
+              (add-objectpic objectpicdb id (first item))
+              (hash-set! db 'bag2 result))))))
+(define (drop-pic id input)
+  ;; Removes the command from the input, getting only the name of the item
+  (let ((item (string-join (cdr (string-split input)))))
+    (remove-object-from-inventorypic inventorypicdb id item)))
+;;(startgame-new start)
+(define inventorypicdb (make-hash))
 
-(define importantvalue 1)
 (define (remove-object-from-roompic db id str)
   ;; When key(id) has something stored in db, proceed
   (when (hash-has-key? db id)
@@ -368,224 +307,80 @@
                ((eq? id 4)
                 (draws-sprite fightroom (pos 0 0)))))
             (else
-              (printf "Added ~a to your baj.\n" (first item))
               (add-objectpic inventorypicdb 'bag2 (first item))
               ;; Checks if the item interacted with is the interdimensional communicator. If it is, the game is over
-              (if (eq? (first item) "an interdimensional communicator")
+              (if (eq? (first item) "the key")
                 (begin
                   ;; Shows message and exits game
-                  (printf "Something strange is happening...\nYOU HAVE FOUND THE WAY TO FREEDOM!\n")
+                  (printf "YOU HAVE FOUND THE WAY TO FREEDOM!\n")
                   (exit))
                 ;; Removes item from the ground  
                 (hash-set! db id result)))))))
-
-
-(define (drop-item id input)
-  ;; Removes the command from the input, getting only the name of the item
-  (let ((item (string-join (cdr (string-split input)))))
-    (remove-object-from-inventory inventorydb id item)))
-
-(define (drop-pic id input)
-  ;; Removes the command from the input, getting only the name of the item
-  (let ((item (string-join (cdr (string-split input)))))
-    (remove-object-from-inventorypic inventorypicdb id item)))
-
-(define (remove-object-from-inventory db id str)
-  ;; When key(id) has something stored in db, proceed
-  (when (hash-has-key? db 'bag)
-    (let* ((record (hash-ref db 'bag))
-             (result (remove (lambda (x) (string-suffix-ci? str x)) record))
-             (item (lset-difference equal? record result)))
-      (cond ((null? item)
-              (printf "You are not carrying that item!\n"))
-             (else
-              (printf "Removed ~a from your baj.\n" (first item))
-              (add-object objectdb id (first item))
-              (hash-set! db 'bag result))))))
-
-(define (remove-object-from-inventorypic db id str)
-  ;; When key(id) has something stored in db, proceed
-  (when (hash-has-key? db 'bag2)
-    (let* ((record (hash-ref db 'bag2))
-             (result (remove (lambda (x) (string-suffix-ci? str x)) record))
-             (item (lset-difference equal? record result)))
-      (cond ((null? item)
-              (printf "You are not carrying that item!\n"))
-             (else
-              (printf "Removed ~a from your baj.\n" (first item))
-              (add-objectpic objectpicdb id (first item))
-              (hash-set! db 'bag2 result))))))
-
-
-(define (pick-item id input)
-  ;; Removes the command from the input, getting only the name of the item
-  (let ((item (string-join (cdr (string-split input)))))
-    (remove-object-from-room objectdb id item)))
 
 (define (pick-pic id input)
   ;; Removes the command from the input, getting only the name of the item
   (let ((item (string-join (cdr (string-split input)))))
     (remove-object-from-roompic objectpicdb id item)))
 
-(define (display-inventory)
-  (display-objects inventorydb 'bag))
+(define (add-objectspic db)
+  (for-each
+    (lambda (r)
+      ;; Adds description(second r) to room id(first r)
+      (add-objectpic db (first r) (second r))) key_objectspic))
 
-(define (display-inventorypic)
-  (display-objectspic inventorypicdb 'bag2))
+(define (add-objectpic db id objectpic)
+  ;; Returns true if id is stored in the database and false otherwise
+  (if (hash-has-key? db id)
+    ;; Assigns to record the content of the key id inside the db hash table(gets previous items assigned to a room or )
+    (let ((record (hash-ref db id)))
+      ;; Assigns to the table key(id) the cons between the actual object and the preexisting objects in the key
+      (hash-set! db id (cons objectpic record))
+      (display-objectspic objectpicdb id)
+      )
+    ;; Assigns the object(consed with '() to become a list) to a key(id) in the hash table
+    (hash-set! db id (cons objectpic empty))))
 
-
-(define (display-help)
-
-    (picy:message-box "I am here to help you" "Aloha explorers, you must find and kill da monster to leave\n the commands that you
-can you are : \n
-- look
-- pick
-- drop
-- inventory
-- attack
-- help
-- quit
-
---~~~~~~ Ahmad Karkouti  ~~~~~~~--" #f '(ok)))
-
-
-
-(define monsterlife 1)
-
-(define (gamestart initial-id)
-    (let loop ((id initial-id) (description #t))
-    (if description
-        ;; If there is an available description, shows it on the screen
-        (get-location id)
-        ;; Else statement. Don't show location(because there isn't any description). Just shows the greater than symbol to incite user to type in text field
-        (printf "> "))
-    ;; Read input from the keyboard
-    (let* ((input (read-line))
-           ;; Function contained in the srfi/13 library, tokenize the input into substrings where a space character is found
-           (string-tokens (string-tokenize input))
-           ;; Creates a list of symbols(not strings) with the input. This is needed to compare the entry with our predefined lists
-           (tokens (map string->symbol string-tokens)))
-      ;; Decides which action response corresponds to. One of the most important calls in the code
-      (let ((response (lookup id tokens)))
-        (cond
-          ((eq? response 'restart )
-           (set! monster 1)))
-        (cond
-          ((eq? response 1 )
-           (draws-sprite startscreen (pos 0 0))))
-        (cond
-          ((eq? response 2 )
-           (draws-sprite background (pos 0 0))))
-        (cond
-          ((eq? response 3 )
-           (draws-sprite background2 (pos 0 0))
-           ))
-        (cond
-          ((and (eq? monster 1) (eq? response 4)
-                )
-           (set! monster (read-bitmap "./monster.png"))
-           (draws-sprite monster (pos 500 300))))
-        (cond
-          ((eq? response 4 )
-           (draws-sprite fightroom (pos 0 0))
-          (draws-sprite monster (pos 500 300))))
-
+(define (display-objectspic db id)
+  ;; When key(id) has something stored in db, proceed
+  (when (hash-has-key? db id)
+    ;; Assigns to record the content of the key id inside the db hash table(gets previous items assigned to a room or )
+    (let* ((record (hash-ref db id))
+            ;; Formats the output(list of items in the room)
+            (output (string-join record " and ")))
+      ;; Shows items in inventory or in the ground. Adds treatment to cases where the room or the inventory are empty
       (cond
-        ((eq? response 5 )
-         (draws-sprite exitpic (pos 0 0))))
-        ;(printf "Input: ~a\nTokens: ~a\nResponse: ~a\n" input tokens response)
-        (cond ((number? response)
-               (loop response #t))
-              ;; If response meaning couldn't be found after the lookup function, shows error message
-              ((eq? #f response)
-               (format #t "Huh? I didn't understand that!\n")
-               (loop id #f))
-              ;; Response action is look at around the room for directions
-              ((eq? response 'look)
-               (cond
-                 ((and (eq? id 4) (eq? monsterlife 0))
-                  (format #t "You hear a whisper! <<the real exit is north-east>>\n")))
-               ;; Retrieve possible directions
-               (get-directions id)
-               (loop id #f))
-              ;; Response action is to pick an item
-              ((eq? response 'pick)
-               (pick-item id input)
-               (pick-pic id input)
-               (cond
-                 ((eq? id 2)
-                  (draws-sprite background (pos 0 0))))
-               (cond
-                 ((eq? id 3)
-                  (draws-sprite background2 (pos 0 0))))
-               (cond
-                 ((eq? id 4)
-                  (draws-sprite fightroom (pos 0 0))))
-               (loop id #f))
-              ((eq? response 'attack)
-
-               (when (hash-has-key? inventorydb 'bag)
-                 ;; Assigns to record the content of the key id inside the db hash table(gets previous items assigned to a room or baj)
-                 (let* ((record (hash-ref inventorydb 'bag))
-                        ;; Formats the output(list of items in the room)
-                        (output (string-join record " and ")))
-                   ;; Shows items in inventory or in the ground. Adds treatment to cases where the room or the inventory are empty
-                   (cond
-                     ((and (equal? output "") (eq? id 'baj)) (printf "Your inventory is empty.\n"))
-                     ((and (equal? output "") (number? id) (eq? monsterlife 0)) (printf "The room is empty.\n"))
-                     ((and (equal? output "") (number? id)) (printf "You need the sword to do that.\n"))
-                     ((and (not (equal? output "")) (eq? id 'baj)) (printf "You are carrying ~a.\n" output))
-                     (else (printf "You see ~a.\n" output)))
-                   (cond
-                     ((and (equal? output "a steel sword") (equal? id 4))
-                      (format #t "You have Killed the monster, you should find a way to leave!\n")
-                      (set! monsterlife 0)
-                      (draws-sprite fightroom (pos 0 0))
-                      ))))
-
-                              (loop id #f))
-              ;; Response action is to drop an item
-              ((eq? response 'drop)
-               ;; Drop item
-               (drop-pic id input)
-               (drop-item id input)
-               (display-objectspic objectpicdb id)
-               (loop id #f))
-              ;; Response action is to show inventory
-              ((eq? response 'north-east)
-               (cond
-                 ((and(eq? id 4) (eq? monsterlife 0))
-               (draws-sprite exitpic (pos 0 0))
-               (drop-item 3 input)
-               (send (gamestart 5) start 100)))
-               (format #t "You need to kill the monster first!\n")
-               (loop id #f)
-               )
-              ((eq? response 'inventory)
-               ;; Displays the inventory
-               (display-inventory)
-               (display-inventorypic)
-               (loop id #f))
-              ;; Response action is to display the help file
-              ((eq? response 'help)
-                ;; Displays Help text on the screen
-                (display-help)
-                (loop id #f))
-              ;; Exit game command
-              ((eq? response 'quit)
-               ;; Exit the application
-               (picy:message-box "Bye" "Hasta lavista baby" #f '(ok))
-               (send frame show #f)
-               (exit)))))))
-
-
-
-(define start (lambda()
-                (send gamestart start 100)
+        ((and (equal? output "") (eq? id 'bag2)) (printf "Your inventory is empty.\n"))
+        ((and (equal? output "") (list? id)) (printf "The room is empty.\n"))
+        ((and (not (equal? output "")) (eq? id 'bag2)) (printf "You are carrying ~a.\n" output))
+        (else (when (hash-has-key? db id)
+;      (cond
+;        ((equal? (hash-ref rooms id) "Entrance")
+;         (draws-sprite (picy:read-bitmap "./images/dungeon.jpg") (pos 0 0)))
+;        ((equal? (hash-ref rooms id) "hall")
+;         (draws-sprite (picy:read-bitmap "./images/background2.jpg") (pos 0 0)))
+;        ((equal? (hash-ref rooms id) "hallway")
+;         (draws-sprite (picy:read-bitmap "./images/fightroom.jpg") (pos 0 0)))
+;        ((equal? (hash-ref rooms id) "corridor")
+;         (draws-sprite (picy:read-bitmap "./images/startscreen.jpg") (pos 0 0)))
+;        ((equal? (hash-ref rooms id) "lobby")
+;         (draws-sprite (picy:read-bitmap "./images/dungeon.jpg") (pos 0 0)))
+;        ((equal? (hash-ref rooms id) "hallway")
+;         (draws-sprite (picy:read-bitmap "./images/dungeon.jpg") (pos 0 0)))
+;        ((equal? (hash-ref rooms id) "court")
+;         (draws-sprite (picy:read-bitmap "./images/dungeon.jpg") (pos 0 0)))
+;        ((equal? (hash-ref rooms id) "pass")
+;         (draws-sprite (picy:read-bitmap "./images/dungeon.jpg") (pos 0 0))))
+                (cond
+                  ((eq? importantvalue 1)
+                (draws-sprite (picy:read-bitmap output) (pos 350 400))
                 ))
-
-
-(add-objects objectdb)
-(add-objectspic objectpicdb)
+              ))))))
+(define importantvalue 1)
 (draws-sprite startscreen (pos 0 0))
-(send (gamestart 1) start 100)
+(add-objectspic objectpicdb)
+(define run
+  ( let (( inputeri ( read )))
+     (cond [(eq? inputeri 'quit) ( exit )]
+           (else
+            (startgame-maze))
+     )))
