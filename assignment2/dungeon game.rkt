@@ -1,29 +1,27 @@
 #lang racket
-(require (prefix-in picy: racket/gui))
-(require racket/draw)
+
+(include "assoc.rkt")
+(include "objects.rkt")
+(include "maze.rkt")
+(include "gui.rkt")
+
 (require srfi/1)
 (require srfi/13)
 (require srfi/48)
-
-(struct pos (x y))
-
-
-(define width 64)
-(define height 47)
-(define done 16)
-(define message "Welcome To the Dungeon | Please enter a command: ")
-(define screen_width (* width done))
-(define screen_height (* height done))
+(require racket/draw)
+(require redex)
 
 
-(define background (read-bitmap "./dungeon.jpg"))
-(define background2 (read-bitmap "./background2.jpg"))
-(define sword (read-bitmap "./sword.png"))
-(define char (read-bitmap "./knight.png"))
-(define startscreen (read-bitmap "./startscreen.jpg"))
-(define exitpic (read-bitmap "./exit.png"))
-(define fightroom (read-bitmap "./fightroom.jpg"))
-(define monster (read-bitmap "./monster.png"))
+(define objectpicdb (make-hash))
+;; DEFINITIONS OF DATABASES AND MAP
+
+(define objectdb (make-hash))  ;;define object hash
+(define inventorydb (make-hash)) ;;define bag hash
+(define rooms (make-hash)) ;; define hash for carry the rooms names
+(define roomspic (make-hash))
+(define m (build-maze X Y)) ;;build the maze
+(define gatekey "")
+;; END OF DEFINITIONS
 
 (define frame (new picy:frame%
                    [label "Ahmad's Dungeon Game"]
